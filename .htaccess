@@ -1,0 +1,158 @@
+
+############################################ HTTPS ########################################
+
+# Forcer les connexions en https pendant 180 jours
+Header always set Strict-Transport-Security "max-age=15552001; includeSubDomains;"
+
+RewriteEngine On
+# Redirection vers HTTPS
+RewriteCond %{SERVER_PORT} ^80$
+RewriteRule ^(.*)$ http://%{SERVER_NAME}%{REQUEST_URI} [L,R]
+
+# Redirection sans www
+RewriteCond %{HTTP_HOST} !^distral.rinoweb\.fr$ [NC]
+
+RewriteRule ^(.*)$ https://distral.rinoweb.fr/$1 [R=301,L]
+############################################ Securité ########################################
+
+# Protection .htaccess
+<files .htaccess>
+order allow,deny
+deny from all
+</files>
+
+
+
+
+# Protection cookies
+Header always edit Set-Cookie (.*) "$1; HTTPOnly; Secure"
+
+# Protection de la lecture des répertoires
+ Options -Indexes
+
+ # Masquer les informations du serveur
+ServerSignature Off
+
+# Protections diverses (XSS, clickjacking et MIME-Type sniffing)
+<ifModule mod_headers.c>
+Header set X-XSS-Protection "1; mode=block"
+Header always append X-Frame-Options SAMEORIGIN
+Header set X-Content-Type-Options: "nosniff”
+</ifModule>
+
+# Protection contre les injections de fichiers
+RewriteCond %{REQUEST_METHOD} GET
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=http:// [OR]
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=(..//?)+ [OR]
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=/([a-z0-9_.]//?)+ [NC]
+RewriteRule .* - [F]
+
+# Protection de l'auteur
+RewriteCond %{QUERY_STRING} ^author=([0-9]*)
+RewriteRule .* - [F]
+
+# Encodage par défaut des fichiers textes et HTML
+AddDefaultCharset UTF-8
+
+
+
+
+
+
+############################################ ERREURS ########################################
+
+ErrorDocument 400 /erreurs/erreur_400.php
+ErrorDocument 401 /erreurs/erreur_401.php
+ErrorDocument 403 /erreurs/erreur_403.php
+ErrorDocument 404 /erreurs/erreur_404.html
+ErrorDocument 500 /erreurs/erreur_500.php
+ErrorDocument 503 /erreurs/erreur_503.php
+
+############################################ PARAMETRES ########################################
+
+DefaultLanguage "fr"
+Header set Content-Language fr-FR
+
+# Comptabilité Edge
+<FilesMatch "\.(htm|html|php)$">
+	<IfModule mod_headers.c>
+		Header set X-UA-Compatible "IE=Edge,chrome=1"
+	</IfModule>
+</FilesMatch>
+
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Choix du fuseau horaire
+SetEnv TZ Europe/Paris
+
+
+# Désactiver le hotlinking de vos images
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www.)?distral.rinoweb.fr [NC]
+
+# Désactiver ETAGS
+Header unset ETag
+FileETag none
+
+
+############################################ CACHE / COMPRESSION ########################################
+
+# Apache 2.0
+SetOutputFilter DEFLATE
+AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/x-javascript
+
+# BEGIN Expire headers
+<IfModule mod_expires.c>
+ ExpiresActive On
+ ExpiresDefault "access plus 7200 seconds"
+ ExpiresByType image/jpg "access plus 2592000 seconds"
+ ExpiresByType image/jpeg "access plus 2592000 seconds"
+ ExpiresByType image/png "access plus 2592000 seconds"
+ ExpiresByType image/gif "access plus 2592000 seconds"
+ ExpiresByType image/webp "access plus 1 year"
+ ExpiresByType image/svg+xml "access plus 1 year"
+ 
+ AddType image/x-icon .ico
+ ExpiresByType image/ico "access plus 2592000 seconds"
+ ExpiresByType image/icon "access plus 2592000 seconds"
+ ExpiresByType image/x-icon "access plus 2592000 seconds"
+
+ ExpiresByType text/css "access plus 2592000 seconds"
+
+ ExpiresByType text/javascript "access plus 2592000 seconds"
+
+ ExpiresByType text/html "access plus 7200 seconds"
+
+ ExpiresByType application/pdf "access plus 2592000 seconds"
+ ExpiresByType application/xhtml+xml "access plus 7200 seconds"
+ ExpiresByType application/javascript A2592000
+ ExpiresByType application/x-javascript "access plus 2592000 seconds"
+ ExpiresByType application/x-shockwave-flash "access plus 2592000 seconds"
+</IfModule>
+# END Expire headers
+
+
+
+# BEGIN Cache-Control Headers
+<IfModule mod_headers.c>
+ <FilesMatch "\.(ico|jpe?g|png|gif|swf|css|gz)$">
+ Header set Cache-Control "max-age=2592000, public"
+ </FilesMatch>
+ <FilesMatch "\.(js)$">
+ Header set Cache-Control "max-age=2592000, private"
+ </FilesMatch>
+<filesMatch "\.(html|htm)$">
+Header set Cache-Control "max-age=7200, public"
+</filesMatch>
+# Disable caching for scripts and other dynamic files
+<FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi)$">
+Header unset Cache-Control
+</FilesMatch>
+</IfModule>
+# END Cache-Control Headers
+
+
+
+

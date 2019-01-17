@@ -1,0 +1,772 @@
+﻿@charset 'utf-8';
+
+/************************************************************************************/
+/* #region BreakPoint */
+/************************************************************************************/
+
+/*
+    Ex : @include device{}
+*/
+
+@mixin device { // Tout les smartphones (sans tablette)
+    @media (max-height : 850px) and (max-width:450px) and (orientation: portrait), (max-width : 850px) and (max-height:450px) and (orientation: landscape) {
+        @content;
+    }
+}
+
+@mixin deviceH { // Tout les smartphones (sans tablette) en position paysage
+    @media (max-width : 850px) and (max-height:450px) and (orientation: landscape) {
+        @content;
+    }
+}
+
+@mixin deviceV { // Tout les smartphones (sans tablette) en position portrait
+    @media (max-height : 850px) and (max-width:450px) and (orientation: portrait) {
+        @content;
+    }
+}
+
+@mixin ipadV {
+    @media all and (device-width: 768px) and (device-height: 1024px) and (orientation:portrait) {
+        @content;
+    }
+}
+
+@mixin ipadH {
+    @media all and (device-width: 768px) and (device-height: 1024px) and (orientation:landscape) {
+        @content;
+    }
+}
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region Variable */
+/************************************************************************************/
+
+/*
+    Utilisation dans des calculs
+    Ex : #{variable}
+    
+*/
+
+// Couleurs
+$background: hsla(0, 0%, 100%,1);
+$green: hsla(182, 74%, 40%,1);
+$blue: hsla(198, 100%, 43%,1);
+
+// Dimensions
+$dimSandwich: 70px;
+
+
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region Function */
+/************************************************************************************/
+
+@function mixW($color, $percentage: 50%) { // Eclaircir une couleur
+    @return mix(white, $color, $percentage);
+}
+
+@function mixB($color, $percentage: 50%) { // Assombrir une couleur
+    @return mix(black, $color, $percentage);
+}
+
+@function opa($color, $amount: .5) { // Changer opacite d'une couleur
+    @return rgba($color,$amount);
+}
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region Utilities */
+/************************************************************************************/
+
+/*
+    Ex : include mixin();
+*/
+@mixin affix-top($offset) { // Fixer un element en haut
+    position: fixed;
+    width: 100%;
+    top: $offset;
+}
+
+@mixin affix-bottom($value) { // Fixer un element en bas
+    position: -webkit-sticky;
+    position: sticky;
+    top: calc(100vh - #{$value});
+}
+
+@mixin transition($transition...) { // A utiliser pour toute les transitions (Compatibilité)
+    -moz-transition: $transition;
+    -o-transition: $transition;
+    -webkit-transition: $transition;
+    transition: $transition;
+}
+
+@mixin transform($transform) { // A utiliser pour toute les transformations (Compatibilité)
+    -moz-transform: $transform;
+    -o-transform: $transform;
+    -ms-transform: $transform;
+    -webkit-transform: $transform;
+    transform: $transform;
+}
+
+@mixin flex($flex) {
+    -webkit-flex: $flex;
+    -moz-flex: $flex;
+    -ms-flex: $flex;
+    flex: $flex;
+}
+
+@mixin flex-direction($direction) {
+    -ms-flex-direction: $direction;
+    -webkit-flex-direction: $direction;
+    flex-direction: $direction;
+}
+
+@mixin animation($animation...) {
+    -moz-animation: $animation;
+    -o-animation: $animation;
+    -webkit-animation: $animation;
+    animation: $animation;
+}
+
+@mixin keyframes($name) {
+    @-webkit-keyframes #{$name} {
+        @content;
+    }
+
+    @-moz-keyframes #{$name} {
+        @content;
+    }
+
+    @-ms-keyframes #{$name} {
+        @content;
+    }
+
+    @keyframes #{$name} {
+        @content;
+    }
+}
+
+@mixin box-shadow($boxshadow) {
+    -moz-box-shadow: $boxshadow;
+    -webkit-box-shadow: $boxshadow;
+    box-shadow: $boxshadow;
+}
+
+@mixin border-radius($boderradius) {
+    -moz-border-radius: $boderradius;
+    -webkit-border-radius: $boderradius;
+    border-radius: $boderradius;
+}
+
+@mixin filter($filter) {
+    -moz-filter: $filter;
+    -ms-filter: $filter;
+    -webkit-filter: $filter;
+    filter: $filter;
+}
+
+@mixin can-toggle-branding( $can-toggle-off-color: $blue, $can-toggle-on-color: $green, $can-toggle-inactive-text: rgba(white, 0.5), $can-toggle-transition: cubic-bezier(0,1,0.5,1) ) {
+
+    input[type="checkbox"] {
+
+        &[disabled] ~ label {
+            color: rgba($can-toggle-off-color, 0.5);
+        }
+
+        &:focus ~ label, &:hover ~ label {
+            .can-toggle__switch {
+                background-color: $can-toggle-off-color;
+
+                &:after {
+                    color: darken($can-toggle-off-color, 10%);
+                }
+            }
+        }
+
+        &:hover ~ label {
+            color: darken($can-toggle-off-color, 5%);
+        }
+
+        &:checked {
+            ~ label {
+                &:hover {
+                    color: darken($can-toggle-on-color, 3%);
+                }
+
+                .can-toggle__switch {
+                    background-color: lighten($can-toggle-on-color, 5%);
+
+                    &:after {
+                        color: darken($can-toggle-on-color, 5%);
+                    }
+                }
+            }
+
+            &:focus, &:hover {
+                ~ label {
+                    .can-toggle__switch {
+                        background-color: $can-toggle-on-color;
+
+                        &:after {
+                            color: darken($can-toggle-on-color, 10%);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    label {
+
+        .can-toggle__label-text {
+            flex: 1;
+        }
+
+        .can-toggle__switch {
+            transition: background-color 0.3s $can-toggle-transition;
+            background: lighten($can-toggle-off-color, 5%);
+
+            &:before {
+                color: $can-toggle-inactive-text;
+            }
+
+            &:after {
+                // Autoprefixer choked here, so making the prefixes explicit
+                -webkit-transition: -webkit-transform 0.3s $can-toggle-transition;
+                transition: transform 0.3s $can-toggle-transition;
+                color: $can-toggle-off-color;
+            }
+        }
+    }
+}
+
+@mixin can-toggle-appearance( $can-toggle-width: 67px, $can-toggle-height: 18px, $can-toggle-border-radius: .5rem, $can-toggle-offset: 2px, $can-toggle-label-font-size: 14px, $can-toggle-switch-font-size: 12px, $can-toggle-shadow: 0 3px 3px rgba(black, 0.4) ) {
+    $can-toggle-switch-width: $can-toggle-width/2;
+
+    input[type="checkbox"] {
+
+        &:focus ~ label, &:hover ~ label {
+            .can-toggle__switch {
+                &:after {
+                    box-shadow: $can-toggle-shadow;
+                }
+            }
+        }
+
+        &:checked {
+            ~ label {
+                .can-toggle__switch {
+                    &:after {
+                        transform: translate3d($can-toggle-width - ($can-toggle-switch-width + $can-toggle-offset),0,0);
+                    }
+                }
+            }
+
+            &:focus, &:hover {
+                ~ label {
+                    .can-toggle__switch {
+                        &:after {
+                            box-shadow: $can-toggle-shadow;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    label {
+        font-size: $can-toggle-label-font-size;
+
+        .can-toggle__switch {
+            height: $can-toggle-height;
+            flex: 0 0 $can-toggle-width;
+            border-radius: $can-toggle-border-radius;
+
+            &:before {
+                left: $can-toggle-width/2;
+                font-size: $can-toggle-switch-font-size;
+                line-height: $can-toggle-height;
+                width: $can-toggle-width/2;
+                padding: 0 12px;
+            }
+
+            &:after {
+                top: $can-toggle-offset;
+                left: $can-toggle-offset;
+                border-radius: $can-toggle-border-radius;
+                width: $can-toggle-switch-width - $can-toggle-offset;
+                line-height: $can-toggle-height - ($can-toggle-offset*2);
+                font-size: $can-toggle-switch-font-size;
+            }
+
+            &:hover {
+                &:after {
+                    box-shadow: $can-toggle-shadow;
+                }
+            }
+        }
+    }
+}
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region ID Graphique
+*/
+/************************************************************************************/
+
+body {
+    background: $background;
+}
+
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+
+
+/************************************************************************************/
+/* #region Header */
+/************************************************************************************/
+language {
+    position: fixed;
+    top: 10px;
+    right: calc(67px + .5rem);
+    z-index: 10;
+    opacity: .8;
+    border: none !important;
+    background: transparent !important;
+    z-index: 11;
+    @include transition(.4s ease-in-out);
+
+    input[type="checkbox"] {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        &[disabled] ~ label {
+            pointer-events: none;
+
+            .can-toggle__switch {
+                opacity: 0.4;
+            }
+        }
+
+        &:checked {
+            ~ label {
+
+                .can-toggle__switch {
+
+                    &:before {
+                        content: attr(data-unchecked);
+                        left: 0;
+                    }
+
+                    &:after {
+                        content: attr(data-checked);
+                    }
+                }
+            }
+
+            &:focus, &:hover {
+                ~ label {
+                }
+            }
+        }
+    }
+
+    label {
+        user-select: none;
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .can-toggle__label-text {
+            flex: 1;
+            padding-left: 32px;
+        }
+
+        .can-toggle__switch {
+            position: relative;
+
+            &:before {
+                content: attr(data-checked);
+                position: absolute;
+                top: 0;
+                text-transform: uppercase;
+                text-align: center;
+            }
+
+            &:after {
+                content: attr(data-unchecked);
+                position: absolute;
+                z-index: 5;
+                text-transform: uppercase;
+                text-align: center;
+                background: white;
+                transform: translate3d(0,0,0);
+            }
+        }
+    }
+    // Default values for .can-toggle class
+    @include can-toggle-branding;
+    @include can-toggle-appearance;
+
+
+    &:hover, &:focus, header.clicked ~ & {
+        opacity: 1;
+    }
+}
+
+header {
+    z-index: 10;
+    display: inline-block;
+    position: fixed;
+    text-align: center;
+    background: $blue;
+    padding: 10px;
+    width: $dimSandwich;
+    height: $dimSandwich;
+    @include transition(.4s ease-in-out);
+    opacity: .8;
+
+    &:hover {
+        background: $green;
+        cursor: pointer;
+        opacity: 1;
+    }
+
+    &.clicked {
+        width: 100%;
+    }
+
+    & .line {
+        display: block;
+        height: 7px;
+        width: 50px;
+        background: black;
+        @include border-radius(.5rem);
+    }
+
+    & .label {
+        display: inline-block;
+        font-size: 14px;
+        line-height: 0;
+        margin: 16px 0;
+        letter-spacing: 0.15rem;
+    }
+
+    &.clicked {
+        & .line-1 {
+            @include animation(menu-top .4s forwards ease-in-out);
+        }
+
+        & .line-3 {
+            @include animation(menu-bottom .4s forwards ease-in-out);
+        }
+
+        & .label {
+            opacity: 0;
+        }
+    }
+
+    &.closed {
+        .line-1 {
+            @include animation(menu-top-reverse .5s forwards ease-in-out);
+        }
+
+        .line-3 {
+            @include animation(menu-bottom-reverse .5s forwards ease-in-out);
+        }
+
+        .label {
+            @include transition(.5s);
+            opacity: 1;
+        }
+    }
+}
+
+menu {
+    z-index: 9;
+    position: fixed;
+    display: flex;
+    @include flex-direction(row);
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: 100%;
+    left: 0;
+    padding: calc(10px + #{$dimSandwich}) .5rem .5rem .5rem;
+    margin: 0;
+    border-bottom: 1px solid $blue;
+    background: mixB($background,10%);
+    @include transition(.4s ease-in-out);
+
+    header.closed + & {
+        top: -100%;
+        opacity: 0;
+        z-index: -1;
+        user-select: none;
+        pointer-events: none;
+    }
+
+    header.clicked + & {
+        top: 0;
+    }
+
+    & ul {
+        list-style: none;
+        line-height: 2rem;
+        margin: 0;
+        padding: 1rem;
+
+        & li {
+
+            &.label {
+                font-size: 1.5rem;
+                margin: 1rem 0;
+
+                &.active {
+                    text-decoration: underline overline;
+                }
+            }
+
+            & a {
+                all: inherit;
+                color: inherit;
+                cursor: pointer;
+
+                &:hover, &:focus {
+                    outline: none;
+                    color: $blue !important;
+                    text-decoration: inherit !important;
+                }
+            }
+        }
+    }
+}
+
+@include keyframes(menu-top) {
+    0% {
+        @include transform( rotate(0deg) translateY(0px));
+    }
+
+    50% {
+        @include transform( rotate(0deg) translateY(20px));
+    }
+
+    100% {
+        @include transform( translateY(20px) rotate(45deg));
+    }
+}
+
+@include keyframes(menu-top-reverse) {
+    0% {
+        @include transform( translateY(20px) rotate(45deg));
+    }
+
+    50% {
+        @include transform( rotate(0deg) translateY(20px));
+    }
+
+    100% {
+        @include transform( translateY(0px) rotate(0deg));
+    }
+}
+
+@include keyframes(menu-bottom) {
+    0% {
+        @include transform( rotate(0deg) translateY(0px));
+    }
+
+    50% {
+        @include transform( rotate(0deg) translateY(-19px));
+    }
+
+    100% {
+        @include transform( translateY(-19px) rotate(-45deg));
+    }
+}
+
+@include keyframes(menu-bottom-reverse) {
+    0% {
+        @include transform( translateY(-19px) rotate(-45deg));
+    }
+
+    50% {
+        @include transform( rotate(0deg) translateY(-19px));
+    }
+
+    100% {
+        @include transform( translateY(0px) rotate(0deg));
+    }
+}
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region Footer */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region Parc  */
+/************************************************************************************/
+
+
+#slideParc {
+    height: 90vh !important;
+    width: 100%;
+
+    & .textSlide {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        align-items: center;
+        top: -100%;
+        left: 50%;
+        opacity: 0;
+        position: absolute;
+        background: opa(black,.6);
+        padding: 1rem;
+        margin: 0;
+        @include transform(translate(-50%,-50%));
+
+        & .title, & .description {
+            min-width: 300px;
+        }
+
+        & .title {
+            border-top-right-radius: .5rem;
+            border-top-left-radius: .5rem;
+        }
+
+        & .description {
+            border-bottom-left-radius: .5rem;
+            border-bottom-right-radius: .5rem;
+        }
+    }
+
+    & .vegas-slide-inner {
+        background-attachment: fixed;
+        background-color: black !important;
+    }
+
+    & #ocean {
+        height: 0%;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        background: #015871;
+
+
+        & .wave {
+            background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/85486/wave.svg) repeat-x;
+            position: absolute;
+            top: -100px;
+            width: 6400px;
+            height: 100px;
+            @include animation(wave 7s cubic-bezier( 0.36, 0.45, 0.63, 0.53) infinite);
+            @include transform(translate3d(0, 0, 0));
+        }
+
+        & .wave:nth-of-type(2) {
+            top: -70px;
+            @include animation(wave 7s cubic-bezier( 0.36, 0.45, 0.63, 0.53) -.125s infinite, swell 7s ease -1.25s infinite);
+            opacity: 1;
+        }
+    }
+}
+
+@include keyframes(wave) {
+    0% {
+        margin-left: 0;
+    }
+
+    100% {
+        margin-left: -1600px;
+    }
+}
+
+@include keyframes(swell) {
+    0%, 100% {
+        @include transform(translate3d(0,-25px,0));
+    }
+
+    50% {
+        @include transform(translate3d(0,5px,0));
+    }
+}
+
+#title {
+    height: 10vh;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    margin: 0;
+    align-items: center;
+    background: opa($green);
+    font-size: calc(2.2vh + 2.2vw);
+    padding: 1rem .5rem;
+    word-break: break-word;
+}
+
+#univers {
+    height: 100vh;
+}
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region Reservation */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region FAQ */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region CGV */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #region Contact */
+/************************************************************************************/
+
+/************************************************************************************/
+/* #endregion */
+/************************************************************************************/
+
+
+
+
